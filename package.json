@@ -1,0 +1,38 @@
+{
+  "name": "gha-create-signed-commit",
+  "private": true,
+  "description": "Create a signed commit using the GitHub API without pushing it",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/statens-pensjonskasse/gha-create-signed-commit.git"
+  },
+  "author": "Statens Pensjonskasse",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "tsc && ncc build lib/index.js -o dist --minify",
+    "format": "prettier --write **/*.ts",
+    "format-check": "prettier --check **/*.ts",
+    "test": "node --import tsx --test src/**/*.test.ts",
+    "test:watch": "node --import tsx --test --watch src/**/*.test.ts",
+    "test:coverage": "node --import tsx --test --experimental-test-coverage src/**/*.test.ts",
+    "package": "npm run build",
+    "all": "npm run format && npm run test && npm run build"
+  },
+  "dependencies": {
+    "@actions/core": "^2.0.1",
+    "@actions/exec": "^1.1.1",
+    "@actions/github": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.1.0",
+    "@vercel/ncc": "^0.38.4",
+    "prettier": "^3.7.4",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}
+
