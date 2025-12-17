@@ -67,4 +67,3 @@ export async function createBlobsInBatches(
     core.debug(`✓ Successfully created ${treeItems.length} blob(s)`);
     return treeItems;
 }
-

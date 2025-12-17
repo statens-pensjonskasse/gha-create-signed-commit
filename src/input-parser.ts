@@ -39,4 +39,3 @@ export function getActionInputs(): ActionInputs {
         fetchCommit,
     };
 }
-

@@ -34,4 +34,3 @@ export async function fetchCommit(commitSha: string, token: string, repository: 
         throw new Error(`Failed to fetch commit ${commitSha}: Unknown error`);
     }
 }
-

@@ -1,38 +1,27 @@
 {
-  "name": "gha-create-signed-commit",
-  "private": true,
+  "name": "create-signed-commit",
   "description": "Create a signed commit using the GitHub API without pushing it",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/statens-pensjonskasse/gha-create-signed-commit.git"
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "node --test --require ts-node/register **/*.test.ts",
+    "prebuild": "mkdir -p dist",
+    "build": "ncc build src/index.ts -o dist --minify",
+    "lint": "biome check ../..",
+    "lint:fix": "biome check ../.. --fix",
+    "format": "biome format ../..",
+    "format:fix": "biome format ../.. --fix"
   },
   "author": "Statens Pensjonskasse",
-  "main": "lib/index.js",
-  "scripts": {
-    "build": "tsc && ncc build lib/index.js -o dist --minify",
-    "format": "prettier --write **/*.ts",
-    "format-check": "prettier --check **/*.ts",
-    "test": "node --import tsx --test src/**/*.test.ts",
-    "test:watch": "node --import tsx --test --watch src/**/*.test.ts",
-    "test:coverage": "node --import tsx --test --experimental-test-coverage src/**/*.test.ts",
-    "package": "npm run build",
-    "all": "npm run format && npm run test && npm run build"
-  },
+  "license": "MIT",
   "dependencies": {
-    "@actions/core": "^2.0.1",
+    "@actions/core": "^1.11.1",
     "@actions/exec": "^1.1.1",
     "@actions/github": "^6.0.0"
   },
   "devDependencies": {
-    "@types/node": "^24.1.0",
+    "@types/node": "^24.10.0",
     "@vercel/ncc": "^0.38.4",
-    "prettier": "^3.7.4",
-    "tsx": "^4.21.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
-  },
-  "engines": {
-    "node": ">=24"
   }
 }
-

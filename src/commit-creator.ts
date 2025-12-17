@@ -113,4 +113,3 @@ export async function createSignedCommit(inputs: ActionInputs): Promise<CommitRe
         throw error;
     }
 }
-

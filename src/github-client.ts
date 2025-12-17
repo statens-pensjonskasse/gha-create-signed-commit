@@ -26,4 +26,3 @@ export function parseRepository(repository: string): RepositoryInfo {
 export function createGitHubClient(token: string) {
     return github.getOctokit(token);
 }
-

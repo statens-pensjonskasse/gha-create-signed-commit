@@ -62,4 +62,3 @@ export class CommitCreationError extends Error {
         this.name = 'CommitCreationError';
     }
 }
-

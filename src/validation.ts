@@ -84,4 +84,3 @@ export function calculateTotalSize(files: Array<{ content: string }>): number {
 
     return totalBytes / (1024 * 1024);
 }
-

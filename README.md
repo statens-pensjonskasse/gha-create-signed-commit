@@ -18,13 +18,13 @@ Creates a signed commit using the GitHub API without pushing it, allowing batch 
 
 ```yaml
 # Commit all changed files on current branch
-- uses: statens-pensjonskasse/gha-create-signed-commit@v1
+- uses: statens-pensjonskasse/github-actions-library/actions/versioning/create-signed-commit@COMMIT_SHA # vX.X.X
   with:
     token: ${{ secrets.GITHUB_TOKEN }}
     message: 'Update files'
 
 # Commit specific paths (files, folders, wildcards)
-- uses: statens-pensjonskasse/gha-create-signed-commit@v1
+- uses: statens-pensjonskasse/github-actions-library/actions/versioning/create-signed-commit@COMMIT_SHA # vX.X.X
   with:
     token: ${{ secrets.GITHUB_TOKEN }}
     message: 'Update config'
@@ -59,7 +59,7 @@ Create multiple commits and push them together:
 ```yaml
 - name: Create release commit
   id: release_commit
-  uses: statens-pensjonskasse/gha-create-signed-commit@v1
+  uses: statens-pensjonskasse/github-actions-library/actions/versioning/create-signed-commit@COMMIT_SHA # vX.X.X
   with:
     token: ${{ secrets.GITHUB_TOKEN }}
     branch: main
@@ -68,7 +68,7 @@ Create multiple commits and push them together:
 
 - name: Create snapshot commit
   id: snapshot_commit
-  uses: statens-pensjonskasse/gha-create-signed-commit@v1
+  uses: statens-pensjonskasse/github-actions-library/actions/versioning/create-signed-commit@COMMIT_SHA # vX.X.X
   with:
     token: ${{ secrets.GITHUB_TOKEN }}
     branch: main
@@ -76,7 +76,7 @@ Create multiple commits and push them together:
     paths: pom.xml
 
 - name: Push both commits
-  uses: actions/github-script@v7
+  uses: actions/github-script@v7 # 60a0d83039c74a4aee543508d2ffcb1c3799cdea
   with:
     script: |
       // Pushing the last commit SHA pushes all commits in the chain
@@ -96,4 +96,3 @@ Create multiple commits and push them together:
 - Use `force: false` to prevent accidental overwrites
 - Token needs `contents: write` permission
 - Branch protection rules apply
-

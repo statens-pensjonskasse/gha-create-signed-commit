@@ -131,4 +131,3 @@ export async function collectFiles(paths: string[] | undefined, workingDirectory
     // Collect the staged files
     return await collectStagedFiles(workingDirectory);
 }
-
