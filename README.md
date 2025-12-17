@@ -32,6 +32,13 @@ Creates a signed commit using the GitHub API without pushing it, allowing batch 
       config/
       README.md
       actions/*/dist
+
+# Commit and push immediately
+- uses: statens-pensjonskasse/github-actions-library/actions/versioning/create-signed-commit@COMMIT_SHA # vX.X.X
+  with:
+    token: ${{ secrets.GITHUB_TOKEN }}
+    message: 'Update and push'
+    push: true
 ```
 
 ## Inputs
@@ -46,6 +53,7 @@ Creates a signed commit using the GitHub API without pushing it, allowing batch 
 | `working-directory` | No | `.` | Working directory |
 | `fail-on-no-changes` | No | `true` | Fail if no changes detected |
 | `fetch-commit` | No | `true` | Fetch the created commit locally |
+| `push` | No | `false` | Push the commit to the remote branch after creation |
 
 ## Outputs
 

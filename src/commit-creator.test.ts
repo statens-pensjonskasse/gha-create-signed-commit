@@ -62,6 +62,7 @@ describe('createSignedCommit', () => {
             failOnNoChanges: true,
             paths: ['test.txt'],
             fetchCommit: false,
+            push: false,
         };
 
         // Mock collectFiles to return test data
@@ -86,6 +87,7 @@ describe('createSignedCommit', () => {
             failOnNoChanges: true,
             paths: ['test.txt'],
             fetchCommit: false,
+            push: false,
         };
 
         mock.method(githubClient, 'createGitHubClient', () => ({}));
@@ -108,6 +110,7 @@ describe('createSignedCommit', () => {
             workingDirectory: '.',
             failOnNoChanges: false,
             fetchCommit: false,
+            push: false,
         };
 
         mock.method(githubClient, 'createGitHubClient', () => ({}));
@@ -135,6 +138,7 @@ describe('createSignedCommit', () => {
             workingDirectory: '.',
             failOnNoChanges: true,
             fetchCommit: false,
+            push: false,
         };
 
         mock.method(githubClient, 'createGitHubClient', () => ({}));
@@ -192,6 +196,7 @@ describe('createSignedCommit', () => {
             workingDirectory: '.',
             failOnNoChanges: true,
             fetchCommit: false,
+            push: false,
         };
 
         // Mock collectFiles to return multiple files
@@ -259,6 +264,7 @@ describe('createSignedCommit', () => {
             workingDirectory: '.',
             failOnNoChanges: true,
             fetchCommit: false,
+            push: false,
         };
 
         // Mock with executable and regular files
@@ -306,6 +312,7 @@ describe('createSignedCommit', () => {
             workingDirectory: '.',
             failOnNoChanges: true,
             fetchCommit: false,
+            push: false,
         };
 
         const mockCollectFiles = mock.fn(async () => [{ path: 'file.txt', content: 'content', mode: '100644' }]);

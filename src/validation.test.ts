@@ -12,6 +12,7 @@ describe('validateInputs', () => {
         workingDirectory: '.',
         failOnNoChanges: true,
         fetchCommit: false,
+        push: false,
     };
 
     it('should pass with valid inputs', () => {

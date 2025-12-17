@@ -103,6 +103,7 @@ describe('getActionInputs', () => {
         assert.strictEqual(inputs.workingDirectory, '.');
         assert.strictEqual(inputs.failOnNoChanges, true);
         assert.strictEqual(inputs.fetchCommit, true);
+        assert.strictEqual(inputs.push, true);
     });
 
     it('should parse fetch-commit as boolean', () => {
@@ -125,5 +126,29 @@ describe('getActionInputs', () => {
         const inputs = getActionInputs();
 
         assert.strictEqual(inputs.fetchCommit, false);
+    });
+
+    it('should parse push as boolean', () => {
+        const mockGetInput = mock.fn((name: string) => {
+            const inputs: Record<string, string> = {
+                token: 'ghp_test123',
+                repository: 'owner/repo',
+                branch: 'main',
+                message: 'Test commit',
+            };
+            return inputs[name] || '';
+        });
+        const mockGetBooleanInput = mock.fn((name: string) => {
+            return name === 'push';
+        });
+
+        mock.method(core, 'getInput', mockGetInput);
+        mock.method(core, 'getBooleanInput', mockGetBooleanInput);
+
+        const inputs = getActionInputs();
+
+        assert.strictEqual(inputs.push, true);
+        assert.strictEqual(inputs.fetchCommit, false);
+        assert.strictEqual(inputs.failOnNoChanges, false);
     });
 });

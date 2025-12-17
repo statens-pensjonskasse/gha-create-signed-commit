@@ -12,6 +12,7 @@ export interface ActionInputs {
     failOnNoChanges: boolean;
     paths?: string[];
     fetchCommit: boolean;
+    push: boolean;
 }
 export interface CommitResult {
     commitSha: string;

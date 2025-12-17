@@ -13,6 +13,7 @@ export function getActionInputs(): ActionInputs {
     const workingDirectory = core.getInput('working-directory') || '.';
     const failOnNoChanges = core.getBooleanInput('fail-on-no-changes');
     const fetchCommit = core.getBooleanInput('fetch-commit');
+    const push = core.getBooleanInput('push');
 
     const pathsInput = core.getInput('paths');
 
@@ -37,5 +38,6 @@ export function getActionInputs(): ActionInputs {
         failOnNoChanges,
         paths,
         fetchCommit,
+        push,
     };
 }
