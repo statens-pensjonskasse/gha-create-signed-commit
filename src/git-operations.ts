@@ -42,12 +42,7 @@ export async function fetchCommit(commitSha: string, token: string, repository: 
  * @param token The GitHub token for API authentication
  * @param repository The repository in owner/repo format
  */
-export async function pushCommit(
-    commitSha: string,
-    branch: string,
-    token: string,
-    repository: string,
-): Promise<void> {
+export async function pushCommit(commitSha: string, branch: string, token: string, repository: string): Promise<void> {
     core.debug(`Pushing commit ${commitSha} to branch ${branch}`);
 
     const { owner, repo } = parseRepository(repository);
@@ -72,4 +67,3 @@ export async function pushCommit(
         throw new Error(`Failed to push commit ${commitSha} to ${branch}: Unknown error`);
     }
 }
-

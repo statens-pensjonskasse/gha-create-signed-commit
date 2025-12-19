@@ -305,7 +305,12 @@ describe('run', () => {
         await run();
 
         assert.strictEqual(mockPushCommit.mock.calls.length, 1);
-        assert.deepStrictEqual(mockPushCommit.mock.calls[0].arguments, ['newcommit123', 'main', 'ghp_test123', 'owner/repo']);
+        assert.deepStrictEqual(mockPushCommit.mock.calls[0].arguments, [
+            'newcommit123',
+            'main',
+            'ghp_test123',
+            'owner/repo',
+        ]);
     });
 
     it('should not push commit when push is disabled', async () => {

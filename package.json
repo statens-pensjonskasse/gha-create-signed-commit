@@ -1,27 +1,28 @@
 {
-  "name": "create-signed-commit",
-  "description": "Create a signed commit using the GitHub API without pushing it",
-  "main": "dist/index.js",
-  "scripts": {
-    "test": "node --test --require ts-node/register **/*.test.ts",
-    "prebuild": "mkdir -p dist",
-    "build": "ncc build src/index.ts -o dist --minify",
-    "lint": "biome check ../..",
-    "lint:fix": "biome check ../.. --fix",
-    "format": "biome format ../..",
-    "format:fix": "biome format ../.. --fix"
-  },
-  "author": "Statens Pensjonskasse",
-  "license": "MIT",
-  "dependencies": {
-    "@actions/core": "^1.11.1",
-    "@actions/exec": "^1.1.1",
-    "@actions/github": "^6.0.0"
-  },
-  "devDependencies": {
-    "@types/node": "^24.10.0",
-    "@vercel/ncc": "^0.38.4",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
-  }
+    "name": "gha-create-signed-commit",
+    "description": "Create a signed commit using the GitHub API without pushing it",
+    "main": "dist/index.js",
+    "scripts": {
+        "test": "node --test --require ts-node/register **/*.test.ts",
+        "prebuild": "mkdir -p dist",
+        "build": "ncc build src/index.ts -o dist --minify",
+        "lint": "biome check",
+        "lint:fix": "biome check --fix",
+        "format": "biome format",
+        "format:fix": "biome format --fix"
+    },
+    "author": "Statens Pensjonskasse",
+    "license": "MIT",
+    "dependencies": {
+        "@actions/core": "^1.11.1",
+        "@actions/exec": "^1.1.1",
+        "@actions/github": "^6.0.0"
+    },
+    "devDependencies": {
+        "@statens-pensjonskasse/biome": "^2.0.22",
+        "@types/node": "^24.10.0",
+        "@vercel/ncc": "^0.38.4",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.9.3"
+    }
 }
