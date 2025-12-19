@@ -14,6 +14,7 @@ export interface ActionInputs {
     paths?: string[];
     fetchCommit: boolean;
     push: boolean;
+    parentCommit?: string;
 }
 
 export interface CommitResult {

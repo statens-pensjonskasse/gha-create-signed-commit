@@ -14,6 +14,7 @@ export function getActionInputs(): ActionInputs {
     const failOnNoChanges = core.getBooleanInput('fail-on-no-changes');
     const fetchCommit = core.getBooleanInput('fetch-commit');
     const push = core.getBooleanInput('push');
+    const parentCommit = core.getInput('parent-commit') || undefined;
 
     const pathsInput = core.getInput('paths');
 
@@ -39,5 +40,6 @@ export function getActionInputs(): ActionInputs {
         paths,
         fetchCommit,
         push,
+        parentCommit,
     };
 }

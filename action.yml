@@ -35,6 +35,9 @@ inputs:
     description: 'Push the commit to the remote branch after creation'
     required: false
     default: 'false'
+  parent-commit:
+    description: 'SHA of the parent commit. If not specified, uses the current HEAD of the branch'
+    required: false
 
 outputs:
   commit-sha:

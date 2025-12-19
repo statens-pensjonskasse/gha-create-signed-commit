@@ -99,6 +99,66 @@ describe('validateInputs', () => {
             validateInputs(inputs);
         });
     });
+
+    it('should accept valid parent-commit SHA', () => {
+        const inputs = { ...validInputs, parentCommit: 'a1b2c3d4e5f6789012345678901234567890abcd' };
+        assert.doesNotThrow(() => {
+            validateInputs(inputs);
+        });
+    });
+
+    it('should throw error for invalid parent-commit SHA - too short', () => {
+        const inputs = { ...validInputs, parentCommit: 'abc123' };
+        assert.throws(
+            () => {
+                validateInputs(inputs);
+            },
+            {
+                name: 'ValidationError',
+                message: /Invalid parent-commit SHA.*40-character/,
+            },
+        );
+    });
+
+    it('should throw error for invalid parent-commit SHA - too long', () => {
+        const inputs = { ...validInputs, parentCommit: 'a'.repeat(41) };
+        assert.throws(
+            () => {
+                validateInputs(inputs);
+            },
+            {
+                name: 'ValidationError',
+                message: /Invalid parent-commit SHA.*40-character/,
+            },
+        );
+    });
+
+    it('should throw error for invalid parent-commit SHA - invalid characters', () => {
+        const inputs = { ...validInputs, parentCommit: 'ghijklmnopqrstuvwxyz01234567890123456789' };
+        assert.throws(
+            () => {
+                validateInputs(inputs);
+            },
+            {
+                name: 'ValidationError',
+                message: /Invalid parent-commit SHA.*40-character/,
+            },
+        );
+    });
+
+    it('should accept uppercase hexadecimal in parent-commit SHA', () => {
+        const inputs = { ...validInputs, parentCommit: 'A1B2C3D4E5F6789012345678901234567890ABCD' };
+        assert.doesNotThrow(() => {
+            validateInputs(inputs);
+        });
+    });
+
+    it('should accept undefined parent-commit', () => {
+        const inputs = { ...validInputs, parentCommit: undefined };
+        assert.doesNotThrow(() => {
+            validateInputs(inputs);
+        });
+    });
 });
 
 describe('validateFileSize', () => {

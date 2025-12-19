@@ -49,6 +49,17 @@ export function validateInputs(inputs: ActionInputs): void {
             );
         }
     }
+
+    // Validate parent-commit SHA format if specified
+    if (inputs.parentCommit) {
+        const shaRegex = /^[0-9a-f]{40}$/i;
+        if (!shaRegex.test(inputs.parentCommit)) {
+            throw new ValidationError(
+                `Invalid parent-commit SHA: "${inputs.parentCommit}". ` +
+                    'Must be a valid 40-character Git SHA-1 hash.',
+            );
+        }
+    }
 }
 
 /**

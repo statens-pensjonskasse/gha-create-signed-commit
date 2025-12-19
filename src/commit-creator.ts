@@ -55,15 +55,21 @@ export async function createSignedCommit(inputs: ActionInputs): Promise<CommitRe
     }
 
     try {
-        // Get the current commit SHA for the branch
-        core.info(`Fetching reference for branch: ${inputs.branch}`);
-        const refResponse = await octokit.rest.git.getRef({
-            owner,
-            repo,
-            ref: `heads/${inputs.branch}`,
-        });
-        const currentCommitSha = refResponse.data.object.sha;
-        core.info(`Current commit SHA: ${currentCommitSha}`);
+        // Get the parent commit SHA - either specified or from branch HEAD
+        let currentCommitSha: string;
+        if (inputs.parentCommit) {
+            core.info(`Using specified parent commit: ${inputs.parentCommit}`);
+            currentCommitSha = inputs.parentCommit;
+        } else {
+            core.info(`Fetching reference for branch: ${inputs.branch}`);
+            const refResponse = await octokit.rest.git.getRef({
+                owner,
+                repo,
+                ref: `heads/${inputs.branch}`,
+            });
+            currentCommitSha = refResponse.data.object.sha;
+            core.info(`Current commit SHA: ${currentCommitSha}`);
+        }
 
         // Get the current commit to retrieve its tree
         core.info('Fetching current commit details');

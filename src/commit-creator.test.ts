@@ -322,4 +322,93 @@ describe('createSignedCommit', () => {
             message: /API rate limit exceeded/,
         });
     });
+
+    it('should use specified parent commit instead of fetching branch HEAD', async () => {
+        let capturedGetCommitSha: string | undefined;
+        let capturedCreateCommitParents: string[] | undefined;
+
+        const mockOctokit = {
+            rest: {
+                git: {
+                    getRef: mock.fn(async () => ({
+                        data: {
+                            object: {
+                                sha: 'branch-head-sha',
+                            },
+                        },
+                    })),
+                    getCommit: mock.fn(async (params: { commit_sha: string }) => {
+                        capturedGetCommitSha = params.commit_sha;
+                        return {
+                            data: {
+                                tree: {
+                                    sha: 'tree123',
+                                },
+                            },
+                        };
+                    }),
+                    createBlob: mock.fn(async () => ({
+                        data: {
+                            sha: 'blob123',
+                        },
+                    })),
+                    createTree: mock.fn(async () => ({
+                        data: {
+                            sha: 'newtree123',
+                        },
+                    })),
+                    createCommit: mock.fn(async (params: { parents: string[] }) => {
+                        capturedCreateCommitParents = params.parents;
+                        return {
+                            data: {
+                                sha: 'newcommit123',
+                                verification: {
+                                    verified: true,
+                                },
+                            },
+                        };
+                    }),
+                },
+            },
+        };
+
+        mock.method(githubClient, 'createGitHubClient', () => mockOctokit);
+        mock.method(core, 'startGroup', () => {});
+        mock.method(core, 'endGroup', () => {});
+        mock.method(core, 'info', () => {});
+        mock.method(core, 'warning', () => {});
+
+        const inputs: ActionInputs = {
+            token: 'ghp_test123',
+            repository: 'owner/repo',
+            branch: 'main',
+            message: 'Test commit',
+            workingDirectory: '.',
+            failOnNoChanges: true,
+            paths: ['test.txt'],
+            fetchCommit: false,
+            push: false,
+            parentCommit: 'custom-parent-sha',
+        };
+
+        // Mock collectFiles to return test data
+        const mockCollectFiles = mock.fn(async () => [{ path: 'test.txt', content: 'hello', mode: '100644' }]);
+        mock.method(fileCollector, 'collectFiles', mockCollectFiles);
+
+        const result = await createSignedCommit(inputs);
+
+        assert.strictEqual(result.commitSha, 'newcommit123');
+        assert.strictEqual(result.treeSha, 'newtree123');
+
+        // Verify that getRef was NOT called since we provided a parent commit
+        assert.strictEqual(mockOctokit.rest.git.getRef.mock.calls.length, 0);
+
+        // Verify that getCommit was called with the custom parent SHA
+        assert.strictEqual(mockOctokit.rest.git.getCommit.mock.calls.length, 1);
+        assert.strictEqual(capturedGetCommitSha, 'custom-parent-sha');
+
+        // Verify that createCommit was called with the custom parent SHA
+        assert.strictEqual(mockOctokit.rest.git.createCommit.mock.calls.length, 1);
+        assert.deepStrictEqual(capturedCreateCommitParents, ['custom-parent-sha']);
+    });
 });

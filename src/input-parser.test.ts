@@ -151,4 +151,45 @@ describe('getActionInputs', () => {
         assert.strictEqual(inputs.fetchCommit, false);
         assert.strictEqual(inputs.failOnNoChanges, false);
     });
+
+    it('should parse parent-commit when provided', () => {
+        const mockGetInput = mock.fn((name: string) => {
+            const inputs: Record<string, string> = {
+                token: 'ghp_test123',
+                repository: 'owner/repo',
+                branch: 'main',
+                message: 'Test commit',
+                'parent-commit': 'abc123def456',
+            };
+            return inputs[name] || '';
+        });
+        const mockGetBooleanInput = mock.fn(() => false);
+
+        mock.method(core, 'getInput', mockGetInput);
+        mock.method(core, 'getBooleanInput', mockGetBooleanInput);
+
+        const inputs = getActionInputs();
+
+        assert.strictEqual(inputs.parentCommit, 'abc123def456');
+    });
+
+    it('should set parent-commit to undefined when not provided', () => {
+        const mockGetInput = mock.fn((name: string) => {
+            const inputs: Record<string, string> = {
+                token: 'ghp_test123',
+                repository: 'owner/repo',
+                branch: 'main',
+                message: 'Test commit',
+            };
+            return inputs[name] || '';
+        });
+        const mockGetBooleanInput = mock.fn(() => false);
+
+        mock.method(core, 'getInput', mockGetInput);
+        mock.method(core, 'getBooleanInput', mockGetBooleanInput);
+
+        const inputs = getActionInputs();
+
+        assert.strictEqual(inputs.parentCommit, undefined);
+    });
 });

@@ -39,6 +39,13 @@ Creates a signed commit using the GitHub API without pushing it, allowing batch 
     token: ${{ secrets.GITHUB_TOKEN }}
     message: 'Update and push'
     push: true
+
+# Create commit from specific parent
+- uses: statens-pensjonskasse/github-actions-library/actions/versioning/create-signed-commit@COMMIT_SHA # vX.X.X
+  with:
+    token: ${{ secrets.GITHUB_TOKEN }}
+    message: 'Cherry-pick changes'
+    parent-commit: 'abc123def456'
 ```
 
 ## Inputs
@@ -54,6 +61,7 @@ Creates a signed commit using the GitHub API without pushing it, allowing batch 
 | `fail-on-no-changes` | No | `true` | Fail if no changes detected |
 | `fetch-commit` | No | `true` | Fetch the created commit locally |
 | `push` | No | `false` | Push the commit to the remote branch after creation |
+| `parent-commit` | No | Current branch HEAD | SHA of the parent commit (must be a valid 40-character Git SHA-1 hash) |
 
 ## Outputs
 
