@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-and-publish:
-    uses: statens-pensjonskasse/public-actions-library/.github/workflows/build-action-node.yaml@5778b6c1a494ce82a7ff1ba43e947515c83e38de # v0.2.0
+    uses: statens-pensjonskasse/public-actions-library/.github/workflows/build-action-node.yaml@fix/node-auth
     permissions:
       contents: write
       packages: write
