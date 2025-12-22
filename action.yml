@@ -1,0 +1,50 @@
+name: 'Create Signed Commit'
+description: 'Create a signed commit using the GitHub API without pushing it'
+
+inputs:
+  working-directory:
+    description: 'Working directory for git operations'
+    required: false
+    default: '.'
+  token:
+    description: 'GitHub token with permissions to access the repository'
+    required: true
+  message:
+    description: 'The commit message'
+    required: true
+  repository:
+    description: 'The repository in format owner/repo'
+    required: false
+    default: ${{ github.repository }}
+  branch:
+    description: 'The branch to create the commit on'
+    required: false
+    default: ${{ github.ref_name }}
+  fail-on-no-changes:
+    description: 'Fail if there are no changes to commit'
+    required: false
+    default: 'true'
+  paths:
+    description: 'Newline-separated list of file and/or folder paths to commit. If not specified, commits all changed files.'
+    required: false
+  fetch-commit:
+    description: 'Fetch the created commit locally after creation'
+    required: false
+    default: 'true'
+  push:
+    description: 'Push the commit to the remote branch after creation'
+    required: false
+    default: 'false'
+  parent-commit:
+    description: 'SHA of the parent commit. If not specified, uses the current HEAD of the branch'
+    required: false
+
+outputs:
+  commit-sha:
+    description: 'The SHA of the created commit'
+  tree-sha:
+    description: 'The SHA of the created tree'
+
+runs:
+  using: 'node24'
+  main: 'dist/index.js'
