@@ -18,13 +18,13 @@ Creates a signed commit using the GitHub API without pushing it, allowing batch 
 
 ```yaml
 # Commit all changed files on current branch
-- uses: statens-pensjonskasse/github-actions-library/actions/versioning/create-signed-commit@COMMIT_SHA # vX.X.X
+- uses: statens-pensjonskasse/gha-create-signed-commit@COMMIT_SHA # vX.X.X
   with:
     token: ${{ secrets.GITHUB_TOKEN }}
     message: 'Update files'
 
 # Commit specific paths (files, folders, wildcards)
-- uses: statens-pensjonskasse/github-actions-library/actions/versioning/create-signed-commit@COMMIT_SHA # vX.X.X
+- uses: statens-pensjonskasse/gha-create-signed-commit@COMMIT_SHA # vX.X.X
   with:
     token: ${{ secrets.GITHUB_TOKEN }}
     message: 'Update config'
@@ -34,14 +34,14 @@ Creates a signed commit using the GitHub API without pushing it, allowing batch 
       actions/*/dist
 
 # Commit and push immediately
-- uses: statens-pensjonskasse/github-actions-library/actions/versioning/create-signed-commit@COMMIT_SHA # vX.X.X
+- uses: statens-pensjonskasse/gha-create-signed-commit@COMMIT_SHA # vX.X.X
   with:
     token: ${{ secrets.GITHUB_TOKEN }}
     message: 'Update and push'
     push: true
 
 # Create commit from specific parent
-- uses: statens-pensjonskasse/github-actions-library/actions/versioning/create-signed-commit@COMMIT_SHA # vX.X.X
+- uses: statens-pensjonskasse/gha-create-signed-commit@COMMIT_SHA # vX.X.X
   with:
     token: ${{ secrets.GITHUB_TOKEN }}
     message: 'Cherry-pick changes'
@@ -75,7 +75,7 @@ Create multiple commits and push them together:
 ```yaml
 - name: Create release commit
   id: release_commit
-  uses: statens-pensjonskasse/github-actions-library/actions/versioning/create-signed-commit@COMMIT_SHA # vX.X.X
+  uses: statens-pensjonskasse/gha-create-signed-commit@COMMIT_SHA # vX.X.X
   with:
     token: ${{ secrets.GITHUB_TOKEN }}
     branch: main
@@ -84,7 +84,7 @@ Create multiple commits and push them together:
 
 - name: Create snapshot commit
   id: snapshot_commit
-  uses: statens-pensjonskasse/github-actions-library/actions/versioning/create-signed-commit@COMMIT_SHA # vX.X.X
+  uses: statens-pensjonskasse/gha-create-signed-commit@COMMIT_SHA # vX.X.X
   with:
     token: ${{ secrets.GITHUB_TOKEN }}
     branch: main
