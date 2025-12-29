@@ -35,9 +35,7 @@ async function addFilesToGit(paths: string[] | undefined, workingDirectory: stri
         args.push(...paths);
         core.debug(`Adding ${paths.length} path(s) to git staging area`);
     } else {
-        // Add all changes
-        args.push('.');
-        core.debug('Adding all changes to git staging area');
+        return;
     }
 
     let errorOutput = '';
