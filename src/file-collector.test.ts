@@ -178,7 +178,7 @@ describe('collectFiles', () => {
     });
 
     describe('no paths specified', () => {
-        it('should collect all changed files using git add .', async () => {
+        it('should not collect changed files using git add .', async () => {
             const testDir = path.join(process.cwd(), 'test-all-changes-temp');
 
             try {
@@ -196,15 +196,10 @@ describe('collectFiles', () => {
                 fs.writeFileSync(path.join(testDir, 'existing.txt'), 'modified');
                 fs.writeFileSync(path.join(testDir, 'new.txt'), 'new content');
 
-                // Call without paths - should add all changes
+                // Call without paths - should not add all changes
                 const result = await collectFiles(undefined, testDir);
 
-                assert.strictEqual(result.length, 2);
-                assert.ok(result.some((f) => f.path === 'existing.txt'));
-                assert.ok(result.some((f) => f.path === 'new.txt'));
-
-                const modifiedFile = result.find((f) => f.path === 'existing.txt');
-                assert.strictEqual(modifiedFile?.content, 'modified');
+                assert.strictEqual(result.length, 0);
             } finally {
                 if (fs.existsSync(testDir)) {
                     fs.rmSync(testDir, { recursive: true, force: true });
@@ -230,36 +225,6 @@ describe('collectFiles', () => {
                 const result = await collectFiles(undefined, testDir);
 
                 assert.strictEqual(result.length, 0);
-            } finally {
-                if (fs.existsSync(testDir)) {
-                    fs.rmSync(testDir, { recursive: true, force: true });
-                }
-            }
-        });
-
-        it('should handle renamed files correctly', async () => {
-            const testDir = path.join(process.cwd(), 'test-rename-temp');
-
-            try {
-                fs.mkdirSync(testDir, { recursive: true });
-                initGitRepo(testDir);
-
-                const { execSync } = require('node:child_process');
-
-                // Create and commit initial file
-                fs.writeFileSync(path.join(testDir, 'old-name.txt'), 'content');
-                execSync('git add old-name.txt', { cwd: testDir, stdio: 'ignore' });
-                execSync('git commit -m "initial"', { cwd: testDir, stdio: 'ignore' });
-
-                // Rename file
-                fs.renameSync(path.join(testDir, 'old-name.txt'), path.join(testDir, 'new-name.txt'));
-
-                // Call without paths - should handle rename
-                const result = await collectFiles(undefined, testDir);
-
-                // Git stages both the deletion and addition
-                assert.ok(result.length >= 1);
-                assert.ok(result.some((f) => f.path === 'new-name.txt'));
             } finally {
                 if (fs.existsSync(testDir)) {
                     fs.rmSync(testDir, { recursive: true, force: true });
