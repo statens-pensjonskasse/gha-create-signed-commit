@@ -1,4 +1,4 @@
-import type { ActionInputs } from './types';
+import type { ActionInputs } from './types.js';
 /**
  * Validate action inputs for security and correctness
  * @param inputs The action inputs to validate

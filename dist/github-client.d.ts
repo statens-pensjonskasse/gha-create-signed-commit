@@ -1,4 +1,4 @@
-import type { RepositoryInfo } from './types';
+import type { RepositoryInfo } from './types.js';
 /**
  * Parse repository string into owner and repo
  * @param repository Repository in format owner/repo
@@ -11,6 +11,6 @@ export declare function parseRepository(repository: string): RepositoryInfo;
  * @param token GitHub token for authentication
  * @returns Octokit instance
  */
-export declare function createGitHubClient(token: string): import("@octokit/core").Octokit & import("@octokit/plugin-rest-endpoint-methods/dist-types/types").Api & {
+export declare function createGitHubClient(token: string): import("@octokit/core").Octokit & import("@octokit/plugin-rest-endpoint-methods").Api & {
     paginate: import("@octokit/plugin-paginate-rest").PaginateInterface;
 };

@@ -1,7 +1,7 @@
 import * as assert from 'node:assert';
 import { describe, it } from 'node:test';
-import type { ActionInputs } from './types';
-import { calculateTotalSize, validateFileSize, validateInputs } from './validation';
+import type { ActionInputs } from './types.js';
+import { calculateTotalSize, validateFileSize, validateInputs } from './validation.js';
 
 describe('validateInputs', () => {
     const validInputs: ActionInputs = {
