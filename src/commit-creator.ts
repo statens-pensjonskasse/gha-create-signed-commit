@@ -1,9 +1,9 @@
 import * as core from '@actions/core';
-import { createBlobsInBatches } from './blob-creator';
-import { collectFiles } from './file-collector';
-import { createGitHubClient, parseRepository } from './github-client';
-import type { ActionInputs, CommitResult } from './types';
-import { calculateTotalSize, validateFileSize } from './validation';
+import { createBlobsInBatches } from './blob-creator.js';
+import { collectFiles } from './file-collector.js';
+import { createGitHubClient, parseRepository } from './github-client.js';
+import type { ActionInputs, CommitResult } from './types.js';
+import { calculateTotalSize, validateFileSize } from './validation.js';
 
 /**
  * Create a signed commit using the GitHub API

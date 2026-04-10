@@ -1,6 +1,6 @@
 import * as github from '@actions/github';
-import { RepositoryValidationError } from './errors';
-import type { RepositoryInfo } from './types';
+import { RepositoryValidationError } from './errors.js';
+import type { RepositoryInfo } from './types.js';
 
 /**
  * Parse repository string into owner and repo

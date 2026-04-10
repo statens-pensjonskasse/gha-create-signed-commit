@@ -1,5 +1,5 @@
 import * as core from '@actions/core';
-import { createGitHubClient, parseRepository } from './github-client';
+import { createGitHubClient, parseRepository } from './github-client.js';
 
 /**
  * Fetch a specific commit from the remote repository using the GitHub API

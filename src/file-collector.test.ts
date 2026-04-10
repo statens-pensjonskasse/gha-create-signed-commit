@@ -1,19 +1,27 @@
 import * as assert from 'node:assert';
+import { execSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { describe, it, mock } from 'node:test';
-import * as core from '@actions/core';
-import { collectFiles } from './file-collector';
+import { describe, it } from 'node:test';
+import esmock from 'esmock';
 
-// Suppress debug and warning logging in tests
-mock.method(core, 'debug', () => {});
-mock.method(core, 'warning', () => {});
+// Import collectFiles with @actions/core mocked to suppress logging
+const { collectFiles } = await esmock(
+    './file-collector.js',
+    import.meta.url,
+    {},
+    {
+        '@actions/core': {
+            debug: () => {},
+            warning: () => {},
+        },
+    },
+);
 
 /**
  * Helper to initialize a git repo in a directory
  */
 function initGitRepo(testDir: string): void {
-    const { execSync } = require('node:child_process');
     execSync('git init', { cwd: testDir, stdio: 'ignore' });
     execSync('git config user.email "test@test.com"', { cwd: testDir, stdio: 'ignore' });
     execSync('git config user.name "Test User"', { cwd: testDir, stdio: 'ignore' });
@@ -39,11 +47,11 @@ describe('collectFiles', () => {
                 const result = await collectFiles(['actions/*/dist/*'], testDir);
 
                 assert.strictEqual(result.length, 2);
-                assert.ok(result.some((f) => f.path.includes('action1/dist/file1.js')));
-                assert.ok(result.some((f) => f.path.includes('action2/dist/file2.js')));
+                assert.ok(result.some((f: { path: string }) => f.path.includes('action1/dist/file1.js')));
+                assert.ok(result.some((f: { path: string }) => f.path.includes('action2/dist/file2.js')));
 
-                const file1 = result.find((f) => f.path.includes('file1.js'));
-                const file2 = result.find((f) => f.path.includes('file2.js'));
+                const file1 = result.find((f: { path: string }) => f.path.includes('file1.js'));
+                const file2 = result.find((f: { path: string }) => f.path.includes('file2.js'));
                 assert.strictEqual(file1?.content, 'content1');
                 assert.strictEqual(file2?.content, 'content2');
             } finally {
@@ -87,8 +95,8 @@ describe('collectFiles', () => {
                 const result = await collectFiles(['src/*.ts', 'test/*.ts'], testDir);
 
                 assert.strictEqual(result.length, 2);
-                assert.ok(result.some((f) => f.path === 'src/file.ts'));
-                assert.ok(result.some((f) => f.path === 'test/file.ts'));
+                assert.ok(result.some((f: { path: string }) => f.path === 'src/file.ts'));
+                assert.ok(result.some((f: { path: string }) => f.path === 'test/file.ts'));
             } finally {
                 if (fs.existsSync(testDir)) {
                     fs.rmSync(testDir, { recursive: true, force: true });
@@ -133,8 +141,8 @@ describe('collectFiles', () => {
                 const result = await collectFiles(['README.md', 'actions/*/dist/*'], testDir);
 
                 assert.strictEqual(result.length, 2);
-                assert.ok(result.some((f) => f.path === 'README.md'));
-                assert.ok(result.some((f) => f.path === 'actions/action1/dist/file.js'));
+                assert.ok(result.some((f: { path: string }) => f.path === 'README.md'));
+                assert.ok(result.some((f: { path: string }) => f.path === 'actions/action1/dist/file.js'));
             } finally {
                 if (fs.existsSync(testDir)) {
                     fs.rmSync(testDir, { recursive: true, force: true });
@@ -164,8 +172,8 @@ describe('collectFiles', () => {
 
                 assert.strictEqual(result.length, 2);
 
-                const executable = result.find((f) => f.path.includes('executable.sh'));
-                const regular = result.find((f) => f.path.includes('regular.txt'));
+                const executable = result.find((f: { path: string }) => f.path.includes('executable.sh'));
+                const regular = result.find((f: { path: string }) => f.path.includes('regular.txt'));
 
                 assert.strictEqual(executable?.mode, '100755');
                 assert.strictEqual(regular?.mode, '100644');
@@ -184,8 +192,6 @@ describe('collectFiles', () => {
             try {
                 fs.mkdirSync(testDir, { recursive: true });
                 initGitRepo(testDir);
-
-                const { execSync } = require('node:child_process');
 
                 // Create and commit initial file
                 fs.writeFileSync(path.join(testDir, 'existing.txt'), 'original');
@@ -213,8 +219,6 @@ describe('collectFiles', () => {
             try {
                 fs.mkdirSync(testDir, { recursive: true });
                 initGitRepo(testDir);
-
-                const { execSync } = require('node:child_process');
 
                 // Create initial commit
                 fs.writeFileSync(path.join(testDir, 'file.txt'), 'content');
@@ -269,8 +273,8 @@ describe('collectFiles', () => {
                 const result = await collectFiles(['folder'], testDir);
 
                 assert.strictEqual(result.length, 2);
-                assert.ok(result.some((f) => f.path === 'folder/file1.txt'));
-                assert.ok(result.some((f) => f.path === 'folder/subfolder/file2.txt'));
+                assert.ok(result.some((f: { path: string }) => f.path === 'folder/file1.txt'));
+                assert.ok(result.some((f: { path: string }) => f.path === 'folder/subfolder/file2.txt'));
             } finally {
                 if (fs.existsSync(testDir)) {
                     fs.rmSync(testDir, { recursive: true, force: true });
@@ -293,9 +297,9 @@ describe('collectFiles', () => {
                 const result = await collectFiles(['README.md', 'src', 'docs/guide.md'], testDir);
 
                 assert.strictEqual(result.length, 3);
-                assert.ok(result.some((f) => f.path === 'README.md'));
-                assert.ok(result.some((f) => f.path === 'src/index.ts'));
-                assert.ok(result.some((f) => f.path === 'docs/guide.md'));
+                assert.ok(result.some((f: { path: string }) => f.path === 'README.md'));
+                assert.ok(result.some((f: { path: string }) => f.path === 'src/index.ts'));
+                assert.ok(result.some((f: { path: string }) => f.path === 'docs/guide.md'));
             } finally {
                 if (fs.existsSync(testDir)) {
                     fs.rmSync(testDir, { recursive: true, force: true });

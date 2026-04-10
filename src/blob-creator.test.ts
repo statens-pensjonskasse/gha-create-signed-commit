@@ -1,12 +1,20 @@
 import * as assert from 'node:assert';
 import { describe, it, mock } from 'node:test';
-import * as core from '@actions/core';
-import { createBlobsInBatches } from './blob-creator';
-import type { FileChange } from './types';
+import esmock from 'esmock';
+import type { FileChange } from './types.js';
 
-// Suppress logging in tests
-mock.method(core, 'info', () => {});
-mock.method(core, 'debug', () => {});
+// Import createBlobsInBatches with @actions/core mocked to suppress logging
+const { createBlobsInBatches } = await esmock(
+    './blob-creator.js',
+    import.meta.url,
+    {},
+    {
+        '@actions/core': {
+            info: () => {},
+            debug: () => {},
+        },
+    },
+);
 
 describe('createBlobsInBatches', () => {
     it('should create blobs for all files', async () => {

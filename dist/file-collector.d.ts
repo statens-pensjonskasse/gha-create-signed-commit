@@ -1,4 +1,4 @@
-import type { FileChange } from './types';
+import type { FileChange } from './types.js';
 /**
  * Collect files based on the input
  * @param paths Optional list of paths to collect (supports wildcards)

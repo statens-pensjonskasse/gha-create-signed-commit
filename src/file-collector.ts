@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as core from '@actions/core';
 import { exec } from '@actions/exec';
-import type { FileChange } from './types';
+import type { FileChange } from './types.js';
 
 /**
  * Read file content and mode from the working directory

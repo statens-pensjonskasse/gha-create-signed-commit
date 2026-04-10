@@ -1,10 +1,15 @@
 import * as assert from 'node:assert';
 import { describe, it, mock } from 'node:test';
-import * as core from '@actions/core';
-import { createSignedCommit } from './commit-creator';
-import * as fileCollector from './file-collector';
-import * as githubClient from './github-client';
-import type { ActionInputs } from './types';
+import esmock from 'esmock';
+import type { ActionInputs } from './types.js';
+
+const coreMocks = {
+    debug: () => {},
+    info: () => {},
+    warning: () => {},
+    startGroup: () => {},
+    endGroup: () => {},
+};
 
 describe('createSignedCommit', () => {
     it('should create a signed commit successfully', async () => {
@@ -12,46 +17,43 @@ describe('createSignedCommit', () => {
             rest: {
                 git: {
                     getRef: mock.fn(async () => ({
-                        data: {
-                            object: {
-                                sha: 'abc123',
-                            },
-                        },
+                        data: { object: { sha: 'abc123' } },
                     })),
                     getCommit: mock.fn(async () => ({
-                        data: {
-                            tree: {
-                                sha: 'tree123',
-                            },
-                        },
+                        data: { tree: { sha: 'tree123' } },
                     })),
                     createBlob: mock.fn(async () => ({
-                        data: {
-                            sha: 'blob123',
-                        },
+                        data: { sha: 'blob123' },
                     })),
                     createTree: mock.fn(async () => ({
-                        data: {
-                            sha: 'newtree123',
-                        },
+                        data: { sha: 'newtree123' },
                     })),
                     createCommit: mock.fn(async () => ({
-                        data: {
-                            sha: 'newcommit123',
-                            verification: {
-                                verified: true,
-                            },
-                        },
+                        data: { sha: 'newcommit123', verification: { verified: true } },
                     })),
                 },
             },
         };
 
-        mock.method(githubClient, 'createGitHubClient', () => mockOctokit);
-        mock.method(core, 'startGroup', () => {});
-        mock.method(core, 'endGroup', () => {});
-        mock.method(core, 'info', () => {});
-        mock.method(core, 'warning', () => {});
+        const { createSignedCommit } = await esmock(
+            './commit-creator.js',
+            import.meta.url,
+            {
+                './github-client.js': {
+                    createGitHubClient: () => mockOctokit,
+                    parseRepository: (repo: string) => {
+                        const [owner, name] = repo.split('/');
+                        return { owner, repo: name };
+                    },
+                },
+                './file-collector.js': {
+                    collectFiles: mock.fn(async () => [{ path: 'test.txt', content: 'hello', mode: '100644' }]),
+                },
+            },
+            {
+                '@actions/core': coreMocks,
+            },
+        );
 
         const inputs: ActionInputs = {
             token: 'ghp_test123',
@@ -65,10 +67,6 @@ describe('createSignedCommit', () => {
             push: false,
         };
 
-        // Mock collectFiles to return test data
-        const mockCollectFiles = mock.fn(async () => [{ path: 'test.txt', content: 'hello', mode: '100644' }]);
-        mock.method(fileCollector, 'collectFiles', mockCollectFiles);
-
         const result = await createSignedCommit(inputs);
 
         assert.strictEqual(result.commitSha, 'newcommit123');
@@ -78,6 +76,25 @@ describe('createSignedCommit', () => {
     });
 
     it('should throw error for invalid repository format', async () => {
+        const { createSignedCommit } = await esmock(
+            './commit-creator.js',
+            import.meta.url,
+            {
+                './github-client.js': {
+                    createGitHubClient: () => ({}),
+                    parseRepository: () => {
+                        throw new Error('Invalid repository format');
+                    },
+                },
+                './file-collector.js': {
+                    collectFiles: mock.fn(async () => []),
+                },
+            },
+            {
+                '@actions/core': coreMocks,
+            },
+        );
+
         const inputs: ActionInputs = {
             token: 'ghp_test123',
             repository: 'invalid-format',
@@ -90,18 +107,32 @@ describe('createSignedCommit', () => {
             push: false,
         };
 
-        mock.method(githubClient, 'createGitHubClient', () => ({}));
-        mock.method(core, 'startGroup', () => {});
-        mock.method(core, 'endGroup', () => {});
-        mock.method(core, 'info', () => {});
-        mock.method(core, 'warning', () => {});
-
         await assert.rejects(async () => await createSignedCommit(inputs), {
             message: /Invalid repository format/,
         });
     });
 
     it('should handle no changes with fail-on-no-changes=false', async () => {
+        const { createSignedCommit } = await esmock(
+            './commit-creator.js',
+            import.meta.url,
+            {
+                './github-client.js': {
+                    createGitHubClient: () => ({}),
+                    parseRepository: (repo: string) => {
+                        const [owner, name] = repo.split('/');
+                        return { owner, repo: name };
+                    },
+                },
+                './file-collector.js': {
+                    collectFiles: mock.fn(async () => []),
+                },
+            },
+            {
+                '@actions/core': coreMocks,
+            },
+        );
+
         const inputs: ActionInputs = {
             token: 'ghp_test123',
             repository: 'owner/repo',
@@ -113,16 +144,6 @@ describe('createSignedCommit', () => {
             push: false,
         };
 
-        mock.method(githubClient, 'createGitHubClient', () => ({}));
-        mock.method(core, 'startGroup', () => {});
-        mock.method(core, 'endGroup', () => {});
-        mock.method(core, 'info', () => {});
-        mock.method(core, 'warning', () => {});
-
-        // Mock collectFiles to return empty array
-        const mockCollectFiles = mock.fn(async () => []);
-        mock.method(fileCollector, 'collectFiles', mockCollectFiles);
-
         const result = await createSignedCommit(inputs);
 
         assert.strictEqual(result.commitSha, '');
@@ -130,6 +151,26 @@ describe('createSignedCommit', () => {
     });
 
     it('should throw error when no changes and fail-on-no-changes=true', async () => {
+        const { createSignedCommit } = await esmock(
+            './commit-creator.js',
+            import.meta.url,
+            {
+                './github-client.js': {
+                    createGitHubClient: () => ({}),
+                    parseRepository: (repo: string) => {
+                        const [owner, name] = repo.split('/');
+                        return { owner, repo: name };
+                    },
+                },
+                './file-collector.js': {
+                    collectFiles: mock.fn(async () => []),
+                },
+            },
+            {
+                '@actions/core': coreMocks,
+            },
+        );
+
         const inputs: ActionInputs = {
             token: 'ghp_test123',
             repository: 'owner/repo',
@@ -140,16 +181,6 @@ describe('createSignedCommit', () => {
             fetchCommit: false,
             push: false,
         };
-
-        mock.method(githubClient, 'createGitHubClient', () => ({}));
-        mock.method(core, 'startGroup', () => {});
-        mock.method(core, 'endGroup', () => {});
-        mock.method(core, 'info', () => {});
-        mock.method(core, 'warning', () => {});
-
-        // Mock collectFiles to return empty array
-        const mockCollectFiles = mock.fn(async () => []);
-        mock.method(fileCollector, 'collectFiles', mockCollectFiles);
 
         await assert.rejects(async () => await createSignedCommit(inputs), {
             message: /No files to commit and fail-on-no-changes is true/,
@@ -173,20 +204,35 @@ describe('createSignedCommit', () => {
                         data: { sha: 'newtree123' },
                     })),
                     createCommit: mock.fn(async () => ({
-                        data: {
-                            sha: 'newcommit123',
-                            verification: { verified: true },
-                        },
+                        data: { sha: 'newcommit123', verification: { verified: true } },
                     })),
                 },
             },
         };
 
-        mock.method(githubClient, 'createGitHubClient', () => mockOctokit);
-        mock.method(core, 'startGroup', () => {});
-        mock.method(core, 'endGroup', () => {});
-        mock.method(core, 'info', () => {});
-        mock.method(core, 'warning', () => {});
+        const { createSignedCommit } = await esmock(
+            './commit-creator.js',
+            import.meta.url,
+            {
+                './github-client.js': {
+                    createGitHubClient: () => mockOctokit,
+                    parseRepository: (repo: string) => {
+                        const [owner, name] = repo.split('/');
+                        return { owner, repo: name };
+                    },
+                },
+                './file-collector.js': {
+                    collectFiles: mock.fn(async () => [
+                        { path: 'file1.txt', content: 'content1', mode: '100644' },
+                        { path: 'file2.txt', content: 'content2', mode: '100644' },
+                        { path: 'file3.txt', content: 'content3', mode: '100755' },
+                    ]),
+                },
+            },
+            {
+                '@actions/core': coreMocks,
+            },
+        );
 
         const inputs: ActionInputs = {
             token: 'ghp_test123',
@@ -198,14 +244,6 @@ describe('createSignedCommit', () => {
             fetchCommit: false,
             push: false,
         };
-
-        // Mock collectFiles to return multiple files
-        const mockCollectFiles = mock.fn(async () => [
-            { path: 'file1.txt', content: 'content1', mode: '100644' },
-            { path: 'file2.txt', content: 'content2', mode: '100644' },
-            { path: 'file3.txt', content: 'content3', mode: '100755' },
-        ]);
-        mock.method(fileCollector, 'collectFiles', mockCollectFiles);
 
         const result = await createSignedCommit(inputs);
 
@@ -241,20 +279,34 @@ describe('createSignedCommit', () => {
                     })),
                     createTree: mockCreateTree,
                     createCommit: mock.fn(async () => ({
-                        data: {
-                            sha: 'newcommit123',
-                            verification: { verified: true },
-                        },
+                        data: { sha: 'newcommit123', verification: { verified: true } },
                     })),
                 },
             },
         };
 
-        mock.method(githubClient, 'createGitHubClient', () => mockOctokit);
-        mock.method(core, 'startGroup', () => {});
-        mock.method(core, 'endGroup', () => {});
-        mock.method(core, 'info', () => {});
-        mock.method(core, 'warning', () => {});
+        const { createSignedCommit } = await esmock(
+            './commit-creator.js',
+            import.meta.url,
+            {
+                './github-client.js': {
+                    createGitHubClient: () => mockOctokit,
+                    parseRepository: (repo: string) => {
+                        const [owner, name] = repo.split('/');
+                        return { owner, repo: name };
+                    },
+                },
+                './file-collector.js': {
+                    collectFiles: mock.fn(async () => [
+                        { path: 'script.sh', content: '#!/bin/bash', mode: '100755' },
+                        { path: 'readme.txt', content: 'readme', mode: '100644' },
+                    ]),
+                },
+            },
+            {
+                '@actions/core': coreMocks,
+            },
+        );
 
         const inputs: ActionInputs = {
             token: 'ghp_test123',
@@ -266,13 +318,6 @@ describe('createSignedCommit', () => {
             fetchCommit: false,
             push: false,
         };
-
-        // Mock with executable and regular files
-        const mockCollectFiles = mock.fn(async () => [
-            { path: 'script.sh', content: '#!/bin/bash', mode: '100755' },
-            { path: 'readme.txt', content: 'readme', mode: '100644' },
-        ]);
-        mock.method(fileCollector, 'collectFiles', mockCollectFiles);
 
         await createSignedCommit(inputs);
 
@@ -299,10 +344,25 @@ describe('createSignedCommit', () => {
             },
         };
 
-        mock.method(githubClient, 'createGitHubClient', () => mockOctokit);
-        mock.method(core, 'startGroup', () => {});
-        mock.method(core, 'endGroup', () => {});
-        mock.method(core, 'info', () => {});
+        const { createSignedCommit } = await esmock(
+            './commit-creator.js',
+            import.meta.url,
+            {
+                './github-client.js': {
+                    createGitHubClient: () => mockOctokit,
+                    parseRepository: (repo: string) => {
+                        const [owner, name] = repo.split('/');
+                        return { owner, repo: name };
+                    },
+                },
+                './file-collector.js': {
+                    collectFiles: mock.fn(async () => [{ path: 'file.txt', content: 'content', mode: '100644' }]),
+                },
+            },
+            {
+                '@actions/core': coreMocks,
+            },
+        );
 
         const inputs: ActionInputs = {
             token: 'ghp_test123',
@@ -314,9 +374,6 @@ describe('createSignedCommit', () => {
             fetchCommit: false,
             push: false,
         };
-
-        const mockCollectFiles = mock.fn(async () => [{ path: 'file.txt', content: 'content', mode: '100644' }]);
-        mock.method(fileCollector, 'collectFiles', mockCollectFiles);
 
         await assert.rejects(async () => await createSignedCommit(inputs), {
             message: /API rate limit exceeded/,
@@ -331,52 +388,45 @@ describe('createSignedCommit', () => {
             rest: {
                 git: {
                     getRef: mock.fn(async () => ({
-                        data: {
-                            object: {
-                                sha: 'branch-head-sha',
-                            },
-                        },
+                        data: { object: { sha: 'branch-head-sha' } },
                     })),
                     getCommit: mock.fn(async (params: { commit_sha: string }) => {
                         capturedGetCommitSha = params.commit_sha;
-                        return {
-                            data: {
-                                tree: {
-                                    sha: 'tree123',
-                                },
-                            },
-                        };
+                        return { data: { tree: { sha: 'tree123' } } };
                     }),
                     createBlob: mock.fn(async () => ({
-                        data: {
-                            sha: 'blob123',
-                        },
+                        data: { sha: 'blob123' },
                     })),
                     createTree: mock.fn(async () => ({
-                        data: {
-                            sha: 'newtree123',
-                        },
+                        data: { sha: 'newtree123' },
                     })),
                     createCommit: mock.fn(async (params: { parents: string[] }) => {
                         capturedCreateCommitParents = params.parents;
-                        return {
-                            data: {
-                                sha: 'newcommit123',
-                                verification: {
-                                    verified: true,
-                                },
-                            },
-                        };
+                        return { data: { sha: 'newcommit123', verification: { verified: true } } };
                     }),
                 },
             },
         };
 
-        mock.method(githubClient, 'createGitHubClient', () => mockOctokit);
-        mock.method(core, 'startGroup', () => {});
-        mock.method(core, 'endGroup', () => {});
-        mock.method(core, 'info', () => {});
-        mock.method(core, 'warning', () => {});
+        const { createSignedCommit } = await esmock(
+            './commit-creator.js',
+            import.meta.url,
+            {
+                './github-client.js': {
+                    createGitHubClient: () => mockOctokit,
+                    parseRepository: (repo: string) => {
+                        const [owner, name] = repo.split('/');
+                        return { owner, repo: name };
+                    },
+                },
+                './file-collector.js': {
+                    collectFiles: mock.fn(async () => [{ path: 'test.txt', content: 'hello', mode: '100644' }]),
+                },
+            },
+            {
+                '@actions/core': coreMocks,
+            },
+        );
 
         const inputs: ActionInputs = {
             token: 'ghp_test123',
@@ -390,10 +440,6 @@ describe('createSignedCommit', () => {
             push: false,
             parentCommit: 'custom-parent-sha',
         };
-
-        // Mock collectFiles to return test data
-        const mockCollectFiles = mock.fn(async () => [{ path: 'test.txt', content: 'hello', mode: '100644' }]);
-        mock.method(fileCollector, 'collectFiles', mockCollectFiles);
 
         const result = await createSignedCommit(inputs);
 

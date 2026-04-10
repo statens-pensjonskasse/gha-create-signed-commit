@@ -1,6 +1,6 @@
 import * as assert from 'node:assert';
 import { describe, it } from 'node:test';
-import { parseRepository } from './github-client';
+import { parseRepository } from './github-client.js';
 
 describe('parseRepository', () => {
     it('should parse valid repository format', () => {

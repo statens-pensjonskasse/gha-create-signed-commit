@@ -6,7 +6,7 @@ import {
     GitHubAPIError,
     RepositoryValidationError,
     ValidationError,
-} from './errors';
+} from './errors.js';
 
 describe('Custom Error Classes', () => {
     describe('RepositoryValidationError', () => {

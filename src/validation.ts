@@ -1,6 +1,6 @@
 import * as path from 'node:path';
-import { ValidationError } from './errors';
-import type { ActionInputs } from './types';
+import { ValidationError } from './errors.js';
+import type { ActionInputs } from './types.js';
 
 /**
  * Validate action inputs for security and correctness

@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 import type * as github from '@actions/github';
-import type { FileChange } from './types';
+import type { FileChange } from './types.js';
 
 type Octokit = ReturnType<typeof github.getOctokit>;
 

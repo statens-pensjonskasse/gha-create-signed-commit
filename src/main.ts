@@ -1,8 +1,8 @@
 import * as core from '@actions/core';
-import { createSignedCommit } from './commit-creator';
-import { fetchCommit, pushCommit } from './git-operations';
-import { getActionInputs } from './input-parser';
-import { validateInputs } from './validation';
+import { createSignedCommit } from './commit-creator.js';
+import { fetchCommit, pushCommit } from './git-operations.js';
+import { getActionInputs } from './input-parser.js';
+import { validateInputs } from './validation.js';
 
 export async function run(): Promise<void> {
     try {

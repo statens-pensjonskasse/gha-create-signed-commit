@@ -1,11 +1,11 @@
 import * as assert from 'node:assert';
 import { describe, it, mock } from 'node:test';
-import * as core from '@actions/core';
-import { fetchCommit, pushCommit } from './git-operations';
-import * as githubClient from './github-client';
+import esmock from 'esmock';
 
-// Suppress debug logging in tests
-mock.method(core, 'debug', () => {});
+const coreMocks = {
+    debug: () => {},
+    info: () => {},
+};
 
 describe('fetchCommit', () => {
     it('should fetch commit details successfully', async () => {
@@ -15,24 +15,29 @@ describe('fetchCommit', () => {
                     getCommit: mock.fn(async () => ({
                         data: {
                             sha: 'commit123',
-                            author: {
-                                name: 'Test Author',
-                            },
+                            author: { name: 'Test Author' },
                             message: 'Test commit message',
-                            tree: {
-                                sha: 'tree123',
-                            },
-                            verification: {
-                                verified: true,
-                            },
+                            tree: { sha: 'tree123' },
+                            verification: { verified: true },
                         },
                     })),
                 },
             },
         };
 
-        mock.method(githubClient, 'createGitHubClient', () => mockOctokit);
-        mock.method(githubClient, 'parseRepository', () => ({ owner: 'test-owner', repo: 'test-repo' }));
+        const { fetchCommit } = await esmock(
+            './git-operations.js',
+            import.meta.url,
+            {
+                './github-client.js': {
+                    createGitHubClient: () => mockOctokit,
+                    parseRepository: () => ({ owner: 'test-owner', repo: 'test-repo' }),
+                },
+            },
+            {
+                '@actions/core': coreMocks,
+            },
+        );
 
         await fetchCommit('commit123', 'token', 'test-owner/test-repo');
 
@@ -41,9 +46,21 @@ describe('fetchCommit', () => {
     });
 
     it('should throw error for invalid repository format', async () => {
-        mock.method(githubClient, 'parseRepository', () => {
-            throw new Error('Invalid repository format: invalid. Expected format: owner/repo');
-        });
+        const { fetchCommit } = await esmock(
+            './git-operations.js',
+            import.meta.url,
+            {
+                './github-client.js': {
+                    parseRepository: () => {
+                        throw new Error('Invalid repository format: invalid. Expected format: owner/repo');
+                    },
+                    createGitHubClient: () => ({}),
+                },
+            },
+            {
+                '@actions/core': coreMocks,
+            },
+        );
 
         await assert.rejects(
             async () => {
@@ -66,8 +83,19 @@ describe('fetchCommit', () => {
             },
         };
 
-        mock.method(githubClient, 'createGitHubClient', () => mockOctokit);
-        mock.method(githubClient, 'parseRepository', () => ({ owner: 'test-owner', repo: 'test-repo' }));
+        const { fetchCommit } = await esmock(
+            './git-operations.js',
+            import.meta.url,
+            {
+                './github-client.js': {
+                    createGitHubClient: () => mockOctokit,
+                    parseRepository: () => ({ owner: 'test-owner', repo: 'test-repo' }),
+                },
+            },
+            {
+                '@actions/core': coreMocks,
+            },
+        );
 
         await assert.rejects(
             async () => {
@@ -90,8 +118,19 @@ describe('fetchCommit', () => {
             },
         };
 
-        mock.method(githubClient, 'createGitHubClient', () => mockOctokit);
-        mock.method(githubClient, 'parseRepository', () => ({ owner: 'test-owner', repo: 'test-repo' }));
+        const { fetchCommit } = await esmock(
+            './git-operations.js',
+            import.meta.url,
+            {
+                './github-client.js': {
+                    createGitHubClient: () => mockOctokit,
+                    parseRepository: () => ({ owner: 'test-owner', repo: 'test-repo' }),
+                },
+            },
+            {
+                '@actions/core': coreMocks,
+            },
+        );
 
         await assert.rejects(
             async () => {
@@ -116,9 +155,19 @@ describe('pushCommit', () => {
             },
         };
 
-        mock.method(githubClient, 'createGitHubClient', () => mockOctokit);
-        mock.method(githubClient, 'parseRepository', () => ({ owner: 'test-owner', repo: 'test-repo' }));
-        mock.method(core, 'info', () => {});
+        const { pushCommit } = await esmock(
+            './git-operations.js',
+            import.meta.url,
+            {
+                './github-client.js': {
+                    createGitHubClient: () => mockOctokit,
+                    parseRepository: () => ({ owner: 'test-owner', repo: 'test-repo' }),
+                },
+            },
+            {
+                '@actions/core': { ...coreMocks, info: () => {} },
+            },
+        );
 
         await pushCommit('commit123', 'main', 'token', 'test-owner/test-repo');
 
@@ -127,9 +176,21 @@ describe('pushCommit', () => {
     });
 
     it('should throw error for invalid repository format', async () => {
-        mock.method(githubClient, 'parseRepository', () => {
-            throw new Error('Invalid repository format: invalid. Expected format: owner/repo');
-        });
+        const { pushCommit } = await esmock(
+            './git-operations.js',
+            import.meta.url,
+            {
+                './github-client.js': {
+                    parseRepository: () => {
+                        throw new Error('Invalid repository format: invalid. Expected format: owner/repo');
+                    },
+                    createGitHubClient: () => ({}),
+                },
+            },
+            {
+                '@actions/core': coreMocks,
+            },
+        );
 
         await assert.rejects(
             async () => {
@@ -152,8 +213,19 @@ describe('pushCommit', () => {
             },
         };
 
-        mock.method(githubClient, 'createGitHubClient', () => mockOctokit);
-        mock.method(githubClient, 'parseRepository', () => ({ owner: 'test-owner', repo: 'test-repo' }));
+        const { pushCommit } = await esmock(
+            './git-operations.js',
+            import.meta.url,
+            {
+                './github-client.js': {
+                    createGitHubClient: () => mockOctokit,
+                    parseRepository: () => ({ owner: 'test-owner', repo: 'test-repo' }),
+                },
+            },
+            {
+                '@actions/core': coreMocks,
+            },
+        );
 
         await assert.rejects(
             async () => {
@@ -176,8 +248,19 @@ describe('pushCommit', () => {
             },
         };
 
-        mock.method(githubClient, 'createGitHubClient', () => mockOctokit);
-        mock.method(githubClient, 'parseRepository', () => ({ owner: 'test-owner', repo: 'test-repo' }));
+        const { pushCommit } = await esmock(
+            './git-operations.js',
+            import.meta.url,
+            {
+                './github-client.js': {
+                    createGitHubClient: () => mockOctokit,
+                    parseRepository: () => ({ owner: 'test-owner', repo: 'test-repo' }),
+                },
+            },
+            {
+                '@actions/core': coreMocks,
+            },
+        );
 
         await assert.rejects(
             async () => {

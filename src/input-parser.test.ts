@@ -1,14 +1,24 @@
 import * as assert from 'node:assert';
 import { describe, it, mock } from 'node:test';
-import * as core from '@actions/core';
-import { getActionInputs } from './input-parser';
+import esmock from 'esmock';
 
-// Suppress debug logging in tests (info and warning still show)
-mock.method(core, 'debug', () => {});
+const mockGetInput = mock.fn((_name: string) => '');
+const mockGetBooleanInput = mock.fn((_name: string) => false);
+const mockInfo = mock.fn(() => {});
+
+// Import getActionInputs with @actions/core mocked
+const { getActionInputs } = await esmock('./input-parser.js', import.meta.url, {
+    '@actions/core': {
+        debug: () => {},
+        info: mockInfo,
+        getInput: mockGetInput,
+        getBooleanInput: mockGetBooleanInput,
+    },
+});
 
 describe('getActionInputs', () => {
     it('should parse paths input correctly', () => {
-        const mockGetInput = mock.fn((name: string) => {
+        mockGetInput.mock.mockImplementation((name: string) => {
             const inputs: Record<string, string> = {
                 token: 'ghp_test123',
                 repository: 'owner/repo',
@@ -19,10 +29,7 @@ describe('getActionInputs', () => {
             };
             return inputs[name] || '';
         });
-        const mockGetBooleanInput = mock.fn(() => false);
-
-        mock.method(core, 'getInput', mockGetInput);
-        mock.method(core, 'getBooleanInput', mockGetBooleanInput);
+        mockGetBooleanInput.mock.mockImplementation(() => false);
 
         const inputs = getActionInputs();
 
@@ -39,7 +46,7 @@ describe('getActionInputs', () => {
     });
 
     it('should handle empty lines in paths input', () => {
-        const mockGetInput = mock.fn((name: string) => {
+        mockGetInput.mock.mockImplementation((name: string) => {
             const inputs: Record<string, string> = {
                 token: 'ghp_test123',
                 repository: 'owner/repo',
@@ -49,10 +56,7 @@ describe('getActionInputs', () => {
             };
             return inputs[name] || '';
         });
-        const mockGetBooleanInput = mock.fn(() => false);
-
-        mock.method(core, 'getInput', mockGetInput);
-        mock.method(core, 'getBooleanInput', mockGetBooleanInput);
+        mockGetBooleanInput.mock.mockImplementation(() => false);
 
         const inputs = getActionInputs();
 
@@ -63,7 +67,7 @@ describe('getActionInputs', () => {
     });
 
     it('should log info when no paths specified', () => {
-        const mockGetInput = mock.fn((name: string) => {
+        mockGetInput.mock.mockImplementation((name: string) => {
             const inputs: Record<string, string> = {
                 token: 'ghp_test123',
                 repository: 'owner/repo',
@@ -72,12 +76,8 @@ describe('getActionInputs', () => {
             };
             return inputs[name] || '';
         });
-        const mockGetBooleanInput = mock.fn(() => false);
-        const mockInfo = mock.fn(() => {});
-
-        mock.method(core, 'getInput', mockGetInput);
-        mock.method(core, 'getBooleanInput', mockGetBooleanInput);
-        mock.method(core, 'info', mockInfo);
+        mockGetBooleanInput.mock.mockImplementation(() => false);
+        mockInfo.mock.resetCalls();
 
         const inputs = getActionInputs();
 
@@ -85,7 +85,7 @@ describe('getActionInputs', () => {
     });
 
     it('should use default values for optional inputs', () => {
-        const mockGetInput = mock.fn((name: string) => {
+        mockGetInput.mock.mockImplementation((name: string) => {
             const inputs: Record<string, string> = {
                 token: 'ghp_test123',
                 branch: 'main',
@@ -93,10 +93,7 @@ describe('getActionInputs', () => {
             };
             return inputs[name] || '';
         });
-        const mockGetBooleanInput = mock.fn(() => true);
-
-        mock.method(core, 'getInput', mockGetInput);
-        mock.method(core, 'getBooleanInput', mockGetBooleanInput);
+        mockGetBooleanInput.mock.mockImplementation(() => true);
 
         const inputs = getActionInputs();
 
@@ -107,7 +104,7 @@ describe('getActionInputs', () => {
     });
 
     it('should parse fetch-commit as boolean', () => {
-        const mockGetInput = mock.fn((name: string) => {
+        mockGetInput.mock.mockImplementation((name: string) => {
             const inputs: Record<string, string> = {
                 token: 'ghp_test123',
                 repository: 'owner/repo',
@@ -116,12 +113,9 @@ describe('getActionInputs', () => {
             };
             return inputs[name] || '';
         });
-        const mockGetBooleanInput = mock.fn((name: string) => {
+        mockGetBooleanInput.mock.mockImplementation((name: string) => {
             return name !== 'fetch-commit';
         });
-
-        mock.method(core, 'getInput', mockGetInput);
-        mock.method(core, 'getBooleanInput', mockGetBooleanInput);
 
         const inputs = getActionInputs();
 
@@ -129,7 +123,7 @@ describe('getActionInputs', () => {
     });
 
     it('should parse push as boolean', () => {
-        const mockGetInput = mock.fn((name: string) => {
+        mockGetInput.mock.mockImplementation((name: string) => {
             const inputs: Record<string, string> = {
                 token: 'ghp_test123',
                 repository: 'owner/repo',
@@ -138,12 +132,9 @@ describe('getActionInputs', () => {
             };
             return inputs[name] || '';
         });
-        const mockGetBooleanInput = mock.fn((name: string) => {
+        mockGetBooleanInput.mock.mockImplementation((name: string) => {
             return name === 'push';
         });
-
-        mock.method(core, 'getInput', mockGetInput);
-        mock.method(core, 'getBooleanInput', mockGetBooleanInput);
 
         const inputs = getActionInputs();
 
@@ -153,7 +144,7 @@ describe('getActionInputs', () => {
     });
 
     it('should parse parent-commit when provided', () => {
-        const mockGetInput = mock.fn((name: string) => {
+        mockGetInput.mock.mockImplementation((name: string) => {
             const inputs: Record<string, string> = {
                 token: 'ghp_test123',
                 repository: 'owner/repo',
@@ -163,10 +154,7 @@ describe('getActionInputs', () => {
             };
             return inputs[name] || '';
         });
-        const mockGetBooleanInput = mock.fn(() => false);
-
-        mock.method(core, 'getInput', mockGetInput);
-        mock.method(core, 'getBooleanInput', mockGetBooleanInput);
+        mockGetBooleanInput.mock.mockImplementation(() => false);
 
         const inputs = getActionInputs();
 
@@ -174,7 +162,7 @@ describe('getActionInputs', () => {
     });
 
     it('should set parent-commit to undefined when not provided', () => {
-        const mockGetInput = mock.fn((name: string) => {
+        mockGetInput.mock.mockImplementation((name: string) => {
             const inputs: Record<string, string> = {
                 token: 'ghp_test123',
                 repository: 'owner/repo',
@@ -183,10 +171,7 @@ describe('getActionInputs', () => {
             };
             return inputs[name] || '';
         });
-        const mockGetBooleanInput = mock.fn(() => false);
-
-        mock.method(core, 'getInput', mockGetInput);
-        mock.method(core, 'getBooleanInput', mockGetBooleanInput);
+        mockGetBooleanInput.mock.mockImplementation(() => false);
 
         const inputs = getActionInputs();
 
