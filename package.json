@@ -15,16 +15,16 @@
     "author": "Statens Pensjonskasse",
     "license": "MIT",
     "dependencies": {
-        "@actions/core": "^3.0.0",
+        "@actions/core": "^3.0.1",
         "@actions/exec": "^3.0.0",
-        "@actions/github": "^9.1.0"
+        "@actions/github": "^9.1.1"
     },
     "devDependencies": {
         "@statens-pensjonskasse/biome": "^2.0.23",
-        "@types/node": "^24.12.2",
-        "@vercel/ncc": "^0.38.4",
-        "esmock": "^2.7.3",
-        "tsx": "^4.21.0",
+        "@types/node": "^24.13.3",
+        "@vercel/ncc": "^0.45.0",
+        "esmock": "^2.7.6",
+        "tsx": "^4.23.13",
         "typescript": "^5.9.3"
     }
 }
