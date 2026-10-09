@@ -21,9 +21,9 @@
     },
     "devDependencies": {
         "@statens-pensjonskasse/biome": "^2.0.23",
-        "@types/node": "^24.19.0",
+        "@types/node": "^24.19.1",
         "@vercel/ncc": "^0.45.0",
-        "esmock": "^2.7.6",
+        "esmock": "^2.7.7",
         "tsx": "^4.23.15",
         "typescript": "^6.0.3"
     }
